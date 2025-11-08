@@ -34,50 +34,66 @@ export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: Time
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
+    <div className="bg-gray-800 rounded-xl p-8 shadow-2xl border border-gray-700">
       {isEditing ? (
-        <div className="mb-4">
+        <div className="mb-6">
           <input
             type="text"
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
-            className="w-full bg-gray-700 text-white px-3 py-2 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSave();
               if (e.key === 'Escape') handleCancel();
             }}
           />
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-3">
             <button
               onClick={handleSave}
-              className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm transition-colors"
             >
               Save
             </button>
             <button
               onClick={handleCancel}
-              className="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-sm"
+              className="px-4 py-2 bg-slate-600 hover:bg-slate-700 rounded-lg text-sm transition-colors"
             >
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <h3 className="text-xl font-semibold mb-4 text-gray-100">{timer.name}</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-semibold text-gray-100">{timer.name}</h3>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-gray-400 hover:text-blue-400 transition-colors p-2"
+            title="Edit name"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+          </button>
+        </div>
       )}
 
-      <div className="text-5xl font-mono font-bold text-center mb-6 text-blue-400">
+      <div className="text-6xl font-mono font-bold text-center mb-8 text-blue-400">
         {formatTime(timer.seconds)}
       </div>
 
-      <div className="flex gap-2 justify-center flex-wrap">
+      <div className="grid grid-cols-3 gap-3">
         <button
           onClick={() => onToggle(timer.id)}
-          className={`px-6 py-2 rounded font-medium ${
+          className={`py-3 rounded-lg font-medium transition-colors ${
             timer.isRunning
-              ? 'bg-yellow-600 hover:bg-yellow-700'
-              : 'bg-green-600 hover:bg-green-700'
+              ? 'bg-amber-600 hover:bg-amber-700'
+              : 'bg-emerald-600 hover:bg-emerald-700'
           }`}
         >
           {timer.isRunning ? 'Pause' : 'Start'}
@@ -85,22 +101,14 @@ export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: Time
         
         <button
           onClick={() => onReset(timer.id)}
-          className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded font-medium"
+          className="py-3 bg-rose-600 hover:bg-rose-700 rounded-lg font-medium transition-colors"
         >
           Reset
-        </button>
-        
-        <button
-          onClick={() => setIsEditing(true)}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium"
-          disabled={isEditing}
-        >
-          Edit
         </button>
 
         <button
           onClick={() => onDelete(timer.id)}
-          className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded font-medium"
+          className="py-3 bg-slate-600 hover:bg-slate-700 rounded-lg font-medium transition-colors"
         >
           Delete
         </button>
