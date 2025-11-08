@@ -3,6 +3,12 @@ import type { Timer } from './types/timer';
 import { TimerCard } from './components/TimerCard';
 import { saveTimers, loadTimers } from './utils/localStorage';
 
+const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
+  return prevTimers.map((t) =>
+    t.id === timerId ? { ...t, seconds: t.seconds + 1 } : t
+  );
+};
+
 function App() {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [newTimerName, setNewTimerName] = useState('');
@@ -41,11 +47,7 @@ function App() {
 
       if (timer.isRunning && !hasInterval) {
         const intervalId = globalThis.setInterval(() => {
-          setTimers((prevTimers) =>
-            prevTimers.map((t) =>
-              t.id === timer.id ? { ...t, seconds: t.seconds + 1 } : t
-            )
-          );
+          setTimers((prevTimers) => incrementTimer(timer.id, prevTimers));
         }, 1000);
         intervalsRef.current.set(timer.id, intervalId);
       } else if (!timer.isRunning && hasInterval) {
