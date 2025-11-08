@@ -84,7 +84,7 @@ export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: Time
         </div>
       )}
 
-      <div className="text-8xl font-mono font-bold text-center my-12 text-blue-400 tracking-wider leading-none">
+      <div className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-center my-6 sm:my-8 md:my-10 lg:my-12 text-blue-400 tracking-wider leading-none" style={{fontFamily: "'Iceland', sans-serif"}}>
         {formatTime(timer.seconds)}
       </div>
 
