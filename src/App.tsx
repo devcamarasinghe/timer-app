@@ -31,16 +31,16 @@ function App() {
     setTimers(stoppedTimers);
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (timers.length > 0) {
       saveTimers(timers);
     }
 
-    timers.forEach((timer) => {
+    for (const timer of timers) {
       const hasInterval = intervalsRef.current.has(timer.id);
 
       if (timer.isRunning && !hasInterval) {
-        const intervalId = window.setInterval(() => {
+        const intervalId = globalThis.setInterval(() => {
           setTimers((prevTimers) =>
             prevTimers.map((t) =>
               t.id === timer.id ? { ...t, seconds: t.seconds + 1 } : t
@@ -55,10 +55,12 @@ useEffect(() => {
           intervalsRef.current.delete(timer.id);
         }
       }
-    });
+    }
 
     return () => {
-      intervalsRef.current.forEach((intervalId) => clearInterval(intervalId));
+      for (const intervalId of intervalsRef.current.values()) {
+        clearInterval(intervalId);
+      }
       intervalsRef.current.clear();
     };
   }, [timers]);
