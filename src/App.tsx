@@ -3,6 +3,12 @@ import type { Timer } from './types/timer';
 import { TimerCard } from './components/TimerCard';
 import { saveTimers, loadTimers } from './utils/localStorage';
 
+const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
+  return prevTimers.map((t) =>
+    t.id === timerId ? { ...t, seconds: t.seconds + 1 } : t
+  );
+};
+
 function App() {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [newTimerName, setNewTimerName] = useState('');
@@ -31,21 +37,17 @@ function App() {
     setTimers(stoppedTimers);
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (timers.length > 0) {
       saveTimers(timers);
     }
 
-    timers.forEach((timer) => {
+    for (const timer of timers) {
       const hasInterval = intervalsRef.current.has(timer.id);
 
       if (timer.isRunning && !hasInterval) {
-        const intervalId = window.setInterval(() => {
-          setTimers((prevTimers) =>
-            prevTimers.map((t) =>
-              t.id === timer.id ? { ...t, seconds: t.seconds + 1 } : t
-            )
-          );
+        const intervalId = globalThis.setInterval(() => {
+          setTimers((prevTimers) => incrementTimer(timer.id, prevTimers));
         }, 1000);
         intervalsRef.current.set(timer.id, intervalId);
       } else if (!timer.isRunning && hasInterval) {
@@ -55,10 +57,12 @@ useEffect(() => {
           intervalsRef.current.delete(timer.id);
         }
       }
-    });
+    }
 
     return () => {
-      intervalsRef.current.forEach((intervalId) => clearInterval(intervalId));
+      for (const intervalId of intervalsRef.current.values()) {
+        clearInterval(intervalId);
+      }
       intervalsRef.current.clear();
     };
   }, [timers]);
@@ -104,23 +108,23 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-blue-400">
+      <div className="px-6 py-10">
+        <h1 className="text-5xl font-bold text-center mb-12 text-blue-400">
           Timer App
         </h1>
 
-        <div className="mb-8 flex gap-2 max-w-md mx-auto">
+        <div className="mb-12 flex gap-3 max-w-2xl mx-auto">
           <input
             type="text"
             value={newTimerName}
             onChange={(e) => setNewTimerName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTimer()}
             placeholder="Enter timer name..."
-            className="flex-1 bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+            className="flex-1 bg-gray-800 text-white px-6 py-4 text-lg rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
           />
           <button
             onClick={addTimer}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium"
+            className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 rounded-lg font-medium"
           >
             Add Timer
           </button>
@@ -131,7 +135,7 @@ useEffect(() => {
             <p className="text-xl">No timers yet. Add one to get started!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {timers.map((timer) => (
               <TimerCard
                 key={timer.id}
