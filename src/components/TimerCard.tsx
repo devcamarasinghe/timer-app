@@ -9,14 +9,6 @@ interface TimerCardProps {
   onDelete: (id: string) => void;
 }
 
-const formatTime = (totalSeconds: number): string => {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-};
-
 export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: TimerCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(timer.name);
@@ -84,8 +76,29 @@ export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: Time
         </div>
       )}
 
-      <div className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-center my-6 sm:my-8 md:my-10 lg:my-12 text-blue-400 tracking-wider leading-none" style={{fontFamily: "'Iceland', sans-serif"}}>
-        {formatTime(timer.seconds)}
+      <div className="flex flex-col items-center my-6 sm:my-8 md:my-10 lg:my-12">
+        <div className="flex items-baseline justify-center gap-1">
+          <div className="flex flex-col items-center">
+            <span className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-blue-400 tracking-wider leading-none">
+              {String(Math.floor(timer.seconds / 3600)).padStart(2, '0')}
+            </span>
+            <span className="text-xs text-gray-400 mt-1">HOURS</span>
+          </div>
+          <span className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-blue-400">:</span>
+          <div className="flex flex-col items-center">
+            <span className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-blue-400 tracking-wider leading-none">
+              {String(Math.floor((timer.seconds % 3600) / 60)).padStart(2, '0')}
+            </span>
+            <span className="text-xs text-gray-400 mt-1">MINUTES</span>
+          </div>
+          <span className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-blue-400">:</span>
+          <div className="flex flex-col items-center">
+            <span className="text-7xl sm:text-8xl md:text-6xl lg:text-7xl xl:text-6xl font-bold text-blue-400 tracking-wider leading-none">
+              {String(timer.seconds % 60).padStart(2, '0')}
+            </span>
+            <span className="text-xs text-gray-400 mt-1">SECONDS</span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
