@@ -10,11 +10,31 @@ function App() {
 
   useEffect(() => {
     const loadedTimers = loadTimers();
-    setTimers(loadedTimers);
+    if (loadedTimers.length > 0) {
+      const stoppedTimers = loadedTimers.map(timer => ({
+        ...timer,
+        isRunning: false
+      }));
+      setTimers(stoppedTimers);
+    }
   }, []);
 
   useEffect(() => {
-    saveTimers(timers);
+    console.log('Loading timers on mount');
+    const loadedTimers = loadTimers();
+    console.log('Loaded timers:', loadedTimers);
+    // Stop all timers that were running before refresh
+    const stoppedTimers = loadedTimers.map(timer => ({
+      ...timer,
+      isRunning: false
+    }));
+    setTimers(stoppedTimers);
+  }, []);
+
+useEffect(() => {
+    if (timers.length > 0) {
+      saveTimers(timers);
+    }
 
     timers.forEach((timer) => {
       const hasInterval = intervalsRef.current.has(timer.id);
@@ -47,7 +67,7 @@ function App() {
     if (newTimerName.trim()) {
       const newTimer: Timer = {
         id: Date.now().toString(),
-        name: newTimerName.trim(),
+        name: newTimerName.trim().charAt(0).toUpperCase() + newTimerName.trim().slice(1),
         seconds: 0,
         isRunning: false,
       };

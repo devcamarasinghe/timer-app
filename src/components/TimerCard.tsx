@@ -21,9 +21,10 @@ export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: Time
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(timer.name);
 
-  const handleSave = () => {
+const handleSave = () => {
     if (editName.trim()) {
-      onUpdate(timer.id, editName.trim());
+      const capitalizedName = editName.trim().charAt(0).toUpperCase() + editName.trim().slice(1);
+      onUpdate(timer.id, capitalizedName);
       setIsEditing(false);
     }
   };
