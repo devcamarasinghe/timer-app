@@ -12,6 +12,7 @@ const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
 function App() {
   const [timers, setTimers] = useState<Timer[]>([]);
   const [newTimerName, setNewTimerName] = useState('');
+  const [isProMode, setIsProMode] = useState(false);
   const intervalsRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
@@ -81,11 +82,21 @@ function App() {
   };
 
   const toggleTimer = (id: string) => {
-    setTimers(
-      timers.map((timer) =>
-        timer.id === id ? { ...timer, isRunning: !timer.isRunning } : timer
-      )
-    );
+    setTimers(prevTimers => {
+      const targetTimer = prevTimers.find(t => t.id === id);
+      if (!targetTimer) return prevTimers;
+
+      return prevTimers.map(timer => {
+        if (timer.id === id) {
+          // Toggle the target timer
+          return { ...timer, isRunning: !timer.isRunning };
+        } else if (isProMode && !targetTimer.isRunning) {
+          // In Pro Mode, if we're starting the target timer, pause all others
+          return { ...timer, isRunning: false };
+        }
+        return timer;
+      });
+    });
   };
 
   const resetTimer = (id: string) => {
@@ -109,9 +120,38 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="px-6 py-10">
-        <h1 className="text-5xl font-bold text-center mb-12 text-blue-400">
-          Timer App
-        </h1>
+        <div className="flex items-center justify-center gap-6 mb-12">
+          <h1 className="text-5xl font-bold text-blue-400">
+            Timer App
+          </h1>
+          <div className="flex items-center gap-2 h-[52px] justify-center mt-3">
+            <div className="flex items-center">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={isProMode}
+                  onChange={(e) => setIsProMode(e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <span className="ml-3 text-sm font-medium text-gray-300">Pro Mode</span>
+              </label>
+              <div className="relative ml-2 group">
+                <button
+                  className="text-gray-400 hover:text-blue-400 transition-colors rounded-full w-5 h-5 flex items-center justify-center"
+                  title="Pro Mode Info"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.94 6.94a.75.75 0 11-1.061-1.061 3 3 0 112.871 5.026v.345a.75.75 0 01-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 108.94 6.94zM10 15a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <div className="absolute top-full right-[calc(100%)] mt-5 px-3 py-2 bg-gray-800 text-sm text-gray-300 rounded-lg border border-gray-700 w-64 hidden group-hover:block z-10">
+                  In Pro Mode, only one timer can run at a time. Starting a new timer will automatically pause other running timers.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="mb-12 flex gap-3 max-w-2xl mx-auto">
           <input
