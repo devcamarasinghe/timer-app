@@ -13,7 +13,7 @@ const formatTime = (totalSeconds: number): string => {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  
+
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
@@ -21,7 +21,7 @@ export const TimerCard = ({ timer, onToggle, onReset, onUpdate, onDelete }: Time
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(timer.name);
 
-const handleSave = () => {
+  const handleSave = () => {
     if (editName.trim()) {
       const capitalizedName = editName.trim().charAt(0).toUpperCase() + editName.trim().slice(1);
       onUpdate(timer.id, capitalizedName);
@@ -35,7 +35,7 @@ const handleSave = () => {
   };
 
   return (
-    <div className="bg-gray-800 rounded-xl p-8 shadow-2xl border border-gray-700">
+    <div className="bg-gray-800 rounded-xl p-12 shadow-2xl border border-gray-700 min-h-[400px] flex flex-col justify-between">
       {isEditing ? (
         <div className="mb-6">
           <input
@@ -66,7 +66,7 @@ const handleSave = () => {
         </div>
       ) : (
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-semibold text-gray-100">{timer.name}</h3>
+          <h3 className="text-3xl font-semibold text-gray-100">{timer.name}</h3>
           <button
             onClick={() => setIsEditing(true)}
             className="text-gray-400 hover:text-blue-400 transition-colors p-2"
@@ -84,22 +84,21 @@ const handleSave = () => {
         </div>
       )}
 
-      <div className="text-6xl font-mono font-bold text-center mb-8 text-blue-400">
+      <div className="text-8xl font-mono font-bold text-center my-12 text-blue-400 tracking-wider leading-none">
         {formatTime(timer.seconds)}
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-4">
         <button
           onClick={() => onToggle(timer.id)}
-          className={`py-3 rounded-lg font-medium transition-colors ${
-            timer.isRunning
+          className={`py-4 text-lg rounded-lg font-medium transition-colors ${timer.isRunning
               ? 'bg-amber-600 hover:bg-amber-700'
               : 'bg-emerald-600 hover:bg-emerald-700'
-          }`}
+            }`}
         >
           {timer.isRunning ? 'Pause' : 'Start'}
         </button>
-        
+
         <button
           onClick={() => onReset(timer.id)}
           className="py-3 bg-rose-600 hover:bg-rose-700 rounded-lg font-medium transition-colors"

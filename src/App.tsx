@@ -108,23 +108,23 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-blue-400">
+      <div className="px-6 py-10">
+        <h1 className="text-5xl font-bold text-center mb-12 text-blue-400">
           Timer App
         </h1>
 
-        <div className="mb-8 flex gap-2 max-w-md mx-auto">
+        <div className="mb-12 flex gap-3 max-w-2xl mx-auto">
           <input
             type="text"
             value={newTimerName}
             onChange={(e) => setNewTimerName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addTimer()}
             placeholder="Enter timer name..."
-            className="flex-1 bg-gray-800 text-white px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+            className="flex-1 bg-gray-800 text-white px-6 py-4 text-lg rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
           />
           <button
             onClick={addTimer}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium"
+            className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700 rounded-lg font-medium"
           >
             Add Timer
           </button>
@@ -135,7 +135,7 @@ function App() {
             <p className="text-xl">No timers yet. Add one to get started!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {timers.map((timer) => (
               <TimerCard
                 key={timer.id}
