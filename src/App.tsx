@@ -3,6 +3,14 @@ import type { Timer } from './types/timer';
 import { TimerCard } from './components/TimerCard';
 import { saveTimers, loadTimers } from './utils/localStorage';
 
+const formatTime = (totalSeconds: number): string => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
 const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
   return prevTimers.map((t) =>
     t.id === timerId ? { ...t, seconds: t.seconds + 1 } : t
@@ -14,6 +22,15 @@ function App() {
   const [newTimerName, setNewTimerName] = useState('');
   const [isProMode, setIsProMode] = useState(false);
   const intervalsRef = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    const runningTimer = timers.find(t => t.isRunning);
+    if (runningTimer) {
+      document.title = `Timer App | ${formatTime(runningTimer.seconds)} - ${runningTimer.name}`;
+    } else {
+      document.title = 'Timer App';
+    }
+  }, [timers]);
 
   useEffect(() => {
     const loadedTimers = loadTimers();
