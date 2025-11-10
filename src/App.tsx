@@ -26,7 +26,7 @@ function App() {
   useEffect(() => {
     const runningTimer = timers.find(t => t.isRunning);
     if (runningTimer) {
-      document.title = `Timer App | ${formatTime(runningTimer.seconds)} - ${runningTimer.name}`;
+      document.title = `${formatTime(runningTimer.seconds)} - ${runningTimer.name}`;
     } else {
       document.title = 'Timer App';
     }
