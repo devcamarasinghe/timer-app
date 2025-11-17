@@ -12,9 +12,41 @@ const formatTime = (totalSeconds: number): string => {
 };
 
 const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
-  return prevTimers.map((t) =>
-    t.id === timerId ? { ...t, seconds: t.seconds + 1 } : t
-  );
+  return prevTimers.map((t) => {
+    if (t.id === timerId) {
+      const updatedTimer = { ...t, seconds: t.seconds + 1 };
+
+      // Check if notification should be sent
+      if (shouldSendNotification(updatedTimer)) {
+        sendNotification(t.name, t.notificationInterval);
+        return { ...updatedTimer, lastNotificationAt: updatedTimer.seconds };
+      }
+
+      return updatedTimer;
+    }
+    return t;
+  });
+};
+
+const sendNotification = (timerName: string, minutes: number): void => {
+  if ('Notification' in globalThis && Notification.permission === 'granted') {
+    new Notification(`Timer Alert: ${timerName}`, {
+      body: `Hey! It's been ${minutes} minutes. Time for a break? 😊`,
+      icon: '/timer-icon.svg',
+      tag: timerName,
+    });
+  }
+};
+
+const shouldSendNotification = (timer: Timer): boolean => {
+  if (!timer.notificationEnabled || !timer.isRunning) {
+    return false;
+  }
+
+  const intervalSeconds = timer.notificationInterval * 60;
+  const nextNotificationTime = timer.lastNotificationAt + intervalSeconds;
+
+  return timer.seconds >= nextNotificationTime && timer.seconds > 0;
 };
 
 function App() {
@@ -22,6 +54,12 @@ function App() {
   const [newTimerName, setNewTimerName] = useState('');
   const [isProMode, setIsProMode] = useState(false);
   const intervalsRef = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    if ('Notification' in globalThis && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   useEffect(() => {
     const runningTimer = timers.find(t => t.isRunning);
@@ -87,11 +125,15 @@ function App() {
 
   const addTimer = () => {
     if (newTimerName.trim()) {
+      const capitalizedName = newTimerName.trim().charAt(0).toUpperCase() + newTimerName.trim().slice(1);
       const newTimer: Timer = {
         id: Date.now().toString(),
-        name: newTimerName.trim().charAt(0).toUpperCase() + newTimerName.trim().slice(1),
+        name: capitalizedName,
         seconds: 0,
         isRunning: false,
+        notificationEnabled: false,
+        notificationInterval: 30,
+        lastNotificationAt: 0,
       };
       setTimers([...timers, newTimer]);
       setNewTimerName('');
@@ -132,6 +174,26 @@ function App() {
 
   const deleteTimer = (id: string) => {
     setTimers(timers.filter((timer) => timer.id !== id));
+  };
+
+  const toggleNotification = (id: string) => {
+    setTimers(
+      timers.map((timer) =>
+        timer.id === id
+          ? { ...timer, notificationEnabled: !timer.notificationEnabled }
+          : timer
+      )
+    );
+  };
+
+  const updateNotificationInterval = (id: string, interval: number) => {
+    setTimers(
+      timers.map((timer) =>
+        timer.id === id
+          ? { ...timer, notificationInterval: interval, lastNotificationAt: 0 }
+          : timer
+      )
+    );
   };
 
   return (
@@ -201,6 +263,8 @@ function App() {
                 onReset={resetTimer}
                 onUpdate={updateTimer}
                 onDelete={deleteTimer}
+                onToggleNotification={toggleNotification}
+                onUpdateInterval={updateNotificationInterval}
               />
             ))}
           </div>
