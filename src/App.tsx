@@ -12,9 +12,58 @@ const formatTime = (totalSeconds: number): string => {
 };
 
 const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
-  return prevTimers.map((t) =>
-    t.id === timerId ? { ...t, seconds: t.seconds + 1 } : t
-  );
+  return prevTimers.map((t) => {
+    if (t.id === timerId) {
+      const updatedTimer = { ...t, seconds: t.seconds + 1 };
+
+      // Check if notification should be sent
+      if (shouldSendNotification(updatedTimer)) {
+        sendNotification(t.name, t.notificationInterval);
+        return { ...updatedTimer, lastNotificationAt: updatedTimer.seconds };
+      }
+
+      return updatedTimer;
+    }
+    return t;
+  });
+};
+
+const sendNotification = (timerName: string, minutes: number): void => {
+  if ('Notification' in globalThis && Notification.permission === 'granted') {
+
+    const audio = new Audio('/notification.mp3');
+    let playCount = 0;
+
+    const playSound = () => {
+      audio.play().catch(err => console.log('Audio play failed:', err));
+      playCount++;
+
+      if (playCount < 3) {
+        audio.addEventListener('ended', playSound, { once: true });
+      }
+    };
+
+    playSound();
+
+    // Show notification
+    new Notification(`Timer Alert: ${timerName}`, {
+      body: `Hey! It's been ${minutes} minutes. Time for a break? 😊`,
+      icon: '/timer-icon.svg',
+      tag: timerName,
+      requireInteraction: false,
+    });
+  }
+};
+
+const shouldSendNotification = (timer: Timer): boolean => {
+  if (!timer.notificationEnabled || !timer.isRunning) {
+    return false;
+  }
+
+  const intervalSeconds = timer.notificationInterval * 60;
+  const nextNotificationTime = timer.lastNotificationAt + intervalSeconds;
+
+  return timer.seconds >= nextNotificationTime && timer.seconds > 0;
 };
 
 function App() {
@@ -87,11 +136,15 @@ function App() {
 
   const addTimer = () => {
     if (newTimerName.trim()) {
+      const capitalizedName = newTimerName.trim().charAt(0).toUpperCase() + newTimerName.trim().slice(1);
       const newTimer: Timer = {
         id: Date.now().toString(),
-        name: newTimerName.trim().charAt(0).toUpperCase() + newTimerName.trim().slice(1),
+        name: capitalizedName,
         seconds: 0,
         isRunning: false,
+        notificationEnabled: false,
+        notificationInterval: 30,
+        lastNotificationAt: 0,
       };
       setTimers([...timers, newTimer]);
       setNewTimerName('');
@@ -134,6 +187,43 @@ function App() {
     setTimers(timers.filter((timer) => timer.id !== id));
   };
 
+  const toggleNotification = async (id: string) => {
+    const timer = timers.find(t => t.id === id);
+
+    if (timer && !timer.notificationEnabled) {
+      if ('Notification' in globalThis && Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Please allow notifications to use this feature');
+          return;
+        }
+      }
+
+      if (Notification.permission !== 'granted') {
+        alert('Notifications are blocked. Please enable them in your browser settings.');
+        return;
+      }
+    }
+
+    setTimers(
+      timers.map((t) =>
+        t.id === id
+          ? { ...t, notificationEnabled: !t.notificationEnabled }
+          : t
+      )
+    );
+  };
+
+  const updateNotificationInterval = (id: string, interval: number) => {
+    setTimers(
+      timers.map((timer) =>
+        timer.id === id
+          ? { ...timer, notificationInterval: interval, lastNotificationAt: 0 }
+          : timer
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="px-6 py-10">
@@ -158,9 +248,7 @@ function App() {
                   className="text-gray-400 hover:text-blue-400 transition-colors rounded-full w-5 h-5 flex items-center justify-center"
                   title="Pro Mode Info"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM8.94 6.94a.75.75 0 11-1.061-1.061 3 3 0 112.871 5.026v.345a.75.75 0 01-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 108.94 6.94zM10 15a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                  </svg>
+                  <img src="/info.png" alt="Info" className="w-4 h-4" />
                 </button>
                 <div className="absolute top-full right-[calc(100%)] mt-5 px-3 py-2 bg-gray-800 text-sm text-gray-300 rounded-lg border border-gray-700 w-64 hidden group-hover:block z-10">
                   In Pro Mode, only one timer can run at a time. Starting a new timer will automatically pause other running timers.
@@ -201,6 +289,8 @@ function App() {
                 onReset={resetTimer}
                 onUpdate={updateTimer}
                 onDelete={deleteTimer}
+                onToggleNotification={toggleNotification}
+                onUpdateInterval={updateNotificationInterval}
               />
             ))}
           </div>
