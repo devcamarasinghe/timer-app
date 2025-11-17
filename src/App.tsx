@@ -38,7 +38,7 @@ const sendNotification = (timerName: string, minutes: number): void => {
       audio.play().catch(err => console.log('Audio play failed:', err));
       playCount++;
 
-      if (playCount < 4) {
+      if (playCount < 3) {
         audio.addEventListener('ended', playSound, { once: true });
       }
     };

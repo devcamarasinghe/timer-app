@@ -107,10 +107,10 @@ export const TimerCard = ({
                     onChange={(e) => onUpdateInterval(timer.id, Number(e.target.value))}
                     className="bg-gray-700 text-white text-sm px-2 py-1 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
                   >
-                    <option value={1}>15 min</option>
-                    <option value={2}>30 min</option>
-                    <option value={3}>45 min</option>
-                    <option value={4}>60 min</option>
+                    <option value={15}>15 min</option>
+                    <option value={30}>30 min</option>
+                    <option value={45}>45 min</option>
+                    <option value={60}>60 min</option>
                   </select>
                 </>
               ) : (
