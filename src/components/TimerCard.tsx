@@ -40,27 +40,27 @@ export const TimerCard = ({
     <div className="bg-gray-800 rounded-xl p-12 shadow-2xl border border-gray-700 min-h-[400px] flex flex-col justify-between">
       {isEditing ? (
         <div className="mb-6">
-          <input
-            type="text"
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSave();
-              if (e.key === 'Escape') handleCancel();
-            }}
-          />
-          <div className="flex gap-2 mt-3">
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="flex-1 bg-gray-700 text-white text-xl px-3 py-1 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') handleCancel();
+              }}
+            />
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm transition-colors"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm transition-colors whitespace-nowrap"
             >
               Save
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-slate-600 hover:bg-slate-700 rounded-lg text-sm transition-colors"
+              className="px-4 py-2 bg-slate-600 hover:bg-slate-700 rounded-lg text-sm transition-colors whitespace-nowrap"
             >
               Cancel
             </button>
@@ -107,10 +107,10 @@ export const TimerCard = ({
                     onChange={(e) => onUpdateInterval(timer.id, Number(e.target.value))}
                     className="bg-gray-700 text-white text-sm px-2 py-1 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
                   >
-                    <option value={15}>15 min</option>
-                    <option value={30}>30 min</option>
-                    <option value={45}>45 min</option>
-                    <option value={60}>60 min</option>
+                    <option value={1}>15 min</option>
+                    <option value={2}>30 min</option>
+                    <option value={3}>45 min</option>
+                    <option value={4}>60 min</option>
                   </select>
                 </>
               ) : (
@@ -149,7 +149,7 @@ export const TimerCard = ({
       <div className="grid grid-cols-3 gap-4">
         <button
           onClick={() => onToggle(timer.id)}
-          className={`py-4 text-lg rounded-lg font-medium transition-colors ${timer.isRunning
+          className={`py-4 text-lg rounded-lg font-medium transition-colors cursor-pointer ${timer.isRunning
             ? 'bg-amber-600 hover:bg-amber-700'
             : 'bg-emerald-600 hover:bg-emerald-700'
             }`}
@@ -159,14 +159,14 @@ export const TimerCard = ({
 
         <button
           onClick={() => onReset(timer.id)}
-          className="py-3 bg-rose-600 hover:bg-rose-700 rounded-lg font-medium transition-colors"
+          className="py-3 bg-rose-600 hover:bg-rose-700 rounded-lg font-medium transition-colors cursor-pointer"
         >
           Reset
         </button>
 
         <button
           onClick={() => onDelete(timer.id)}
-          className="py-3 bg-slate-600 hover:bg-slate-700 rounded-lg font-medium transition-colors"
+          className="py-3 bg-slate-600 hover:bg-slate-700 rounded-lg font-medium transition-colors cursor-pointer"
         >
           Delete
         </button>
