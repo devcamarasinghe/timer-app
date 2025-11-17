@@ -30,10 +30,27 @@ const incrementTimer = (timerId: string, prevTimers: Timer[]): Timer[] => {
 
 const sendNotification = (timerName: string, minutes: number): void => {
   if ('Notification' in globalThis && Notification.permission === 'granted') {
+
+    const audio = new Audio('/notification.mp3');
+    let playCount = 0;
+
+    const playSound = () => {
+      audio.play().catch(err => console.log('Audio play failed:', err));
+      playCount++;
+
+      if (playCount < 4) {
+        audio.addEventListener('ended', playSound, { once: true });
+      }
+    };
+
+    playSound();
+
+    // Show notification
     new Notification(`Timer Alert: ${timerName}`, {
       body: `Hey! It's been ${minutes} minutes. Time for a break? 😊`,
       icon: '/timer-icon.svg',
       tag: timerName,
+      requireInteraction: false,
     });
   }
 };
