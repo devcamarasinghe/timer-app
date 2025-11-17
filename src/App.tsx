@@ -56,12 +56,6 @@ function App() {
   const intervalsRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
-    if ('Notification' in globalThis && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  useEffect(() => {
     const runningTimer = timers.find(t => t.isRunning);
     if (runningTimer) {
       document.title = `${formatTime(runningTimer.seconds)} - ${runningTimer.name}`;
@@ -176,12 +170,29 @@ function App() {
     setTimers(timers.filter((timer) => timer.id !== id));
   };
 
-  const toggleNotification = (id: string) => {
+  const toggleNotification = async (id: string) => {
+    const timer = timers.find(t => t.id === id);
+
+    if (timer && !timer.notificationEnabled) {
+      if ('Notification' in globalThis && Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Please allow notifications to use this feature');
+          return;
+        }
+      }
+
+      if (Notification.permission !== 'granted') {
+        alert('Notifications are blocked. Please enable them in your browser settings.');
+        return;
+      }
+    }
+
     setTimers(
-      timers.map((timer) =>
-        timer.id === id
-          ? { ...timer, notificationEnabled: !timer.notificationEnabled }
-          : timer
+      timers.map((t) =>
+        t.id === id
+          ? { ...t, notificationEnabled: !t.notificationEnabled }
+          : t
       )
     );
   };
